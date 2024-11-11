@@ -51,6 +51,10 @@ const Header = () => {
     }
   };
 
+  const navigateToAttendanceReport = () => {
+    navigate("/attendance-report"); // Use navigate to go to the new page
+  };
+
   return (
     <StyledHeader>
       <div className="logo-container">
@@ -72,6 +76,11 @@ const Header = () => {
         </ul>
 
         <MarkAttendance />
+        <div>
+          <button onClick={navigateToAttendanceReport}>
+            View Attendance History
+          </button>
+        </div>
       </div>
     </StyledHeader>
   );

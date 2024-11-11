@@ -1,41 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Webcam from "react-webcam";
-import { markAttendance } from "../../api/faceRecognitionAPI"; // Import API function
+import { markAttendance } from "../../api/faceRecognitionAPI"; // New API function
 
-const MarkAttendance = ({ rollNo }) => {
-  const [isWebcamOpen, setIsWebcamOpen] = useState(false);
-  const webcamRef = React.useRef(null);
+const MarkAttendance = () => {
+  const webcamRef = useRef(null);
+  const [isWebcamActive, setIsWebcamActive] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [result, setResult] = useState(null);
+  const [previousDatesTimes, setPreviousDatesTimes] = useState([]); // State for previous dates and times
 
-  const captureAndMarkAttendance = async () => {
-    const imageSrc = webcamRef.current.getScreenshot(); // Capture image from webcam
-
-    if (imageSrc) {
-      // Convert the captured image to a blob
+  // Capture image from webcam
+  const captureImage = async () => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
       const blob = await fetch(imageSrc).then((res) => res.blob());
-      const file = new File([blob], "attendance_capture.jpg", {
-        type: "image/jpeg",
-      });
+      return new File([blob], "capture.jpg", { type: "image/jpeg" });
+    }
+    return null;
+  };
 
-      // Call the markAttendance API
-      try {
-        const response = await markAttendance(file, rollNo); // Send file and rollNo to API
-        alert(response.message || response.error); // Display success or error message
-        setIsWebcamOpen(false); // Close the webcam after marking attendance
-      } catch (error) {
-        alert("Error marking attendance:", error); // Handle any errors
+  // Mark attendance for the user
+  const handleMarkAttendance = async () => {
+    setIsWebcamActive(true);
+  };
+
+  const submitAttendance = async () => {
+    setLoading(true);
+    const imageFile = await captureImage();
+    if (imageFile) {
+      const result = await markAttendance(imageFile);
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setResult(result);
+        setPreviousDatesTimes(result.previous_dates_times); // Update previous dates and times
       }
     }
+    setLoading(false);
+    setIsWebcamActive(false);
   };
 
   return (
     <div>
-      <button onClick={() => setIsWebcamOpen(true)}>Mark Attendance</button>
+      <h2>Mark Attendance</h2>
 
-      {isWebcamOpen && (
+      <button onClick={handleMarkAttendance}>Open Webcam</button>
+
+      {isWebcamActive && (
         <div>
-          <Webcam ref={webcamRef} screenshotFormat="image/jpeg" />
-          <button onClick={captureAndMarkAttendance}>Capture & Submit</button>
-          <button onClick={() => setIsWebcamOpen(false)}>Cancel</button>
+          <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" />
+          <button onClick={submitAttendance} disabled={loading}>
+            {loading ? "Marking Attendance..." : "Capture & Mark Attendance"}
+          </button>
+        </div>
+      )}
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {result && (
+        <div>
+          <h3>Attendance Marked</h3>
+          <p>{`Name: ${result.attendance.name}`}</p>
+          <p>{`Roll No: ${result.attendance.rollNo}`}</p>
+          <p>{`Time: ${result.attendance.time}`}</p>
+          <p>{`Date: ${result.attendance.date}`}</p>
         </div>
       )}
     </div>

@@ -43,21 +43,30 @@ export const recognizeFace = async (imageFile) => {
 
 // faceRecognitionAPI.js
 
-export const markAttendance = async (image, rollNo) => {
-  try {
-    const formData = new FormData();
-    formData.append("image", image);
-    formData.append("rollNo", rollNo);
+export const markAttendance = async (imageFile) => {
+  const formData = new FormData();
+  formData.append("image", imageFile);
 
-    const response = await fetch("/api/mark_attendance", {
+  try {
+    const response = await fetch("http://localhost:5000/api/mark-attendance", {
       method: "POST",
       body: formData,
     });
-
-    const data = await response.json();
-    return data; // Return response data (success or error message)
+    return await response.json();
   } catch (error) {
-    console.error("Error marking attendance:", error);
-    throw error; // Rethrow error for further handling
+    console.error("Error in marking attendance:", error);
+    return { error: "Attendance marking failed" };
+  }
+};
+
+export const getAttendanceReport = async (name) => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/attendance-report?name=${name}`
+    );
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching attendance report:", error);
+    return { error: "Failed to retrieve attendance report" };
   }
 };

@@ -12,6 +12,7 @@ import Error from "./Error";
 import FaceRecognition from "../components/FaceRecognition";
 import ProtectedRoute from "./ProtectedRoute";
 import ProtectedRoute2 from "./ProtectedRoute2";
+import ViewAttendance from "../components/ViewAttendance";
 
 const appRouter = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ const appRouter = createBrowserRouter([
       {
         path: "/signup",
         element: <SignupPage />,
+      },
+      {
+        path: "/attendance-report",
+        element: <ViewAttendance />,
       },
       // {
       //   path: "/employee",

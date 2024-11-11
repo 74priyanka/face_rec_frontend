@@ -5,6 +5,7 @@ import {
   recognizeFace,
   getAttendanceReport,
 } from "../api/faceRecognitionAPI";
+import Header from "./Header";
 
 const FaceRecognition = () => {
   const webcamRef = useRef(null);
@@ -19,26 +20,7 @@ const FaceRecognition = () => {
   const [attendanceHistory, setAttendanceHistory] = useState([]);
   const [showReport, setShowReport] = useState(false);
 
-  // Fetch and display the attendance report
-  // Ensure result and user_id are defined before using them
-  const handleAttendanceReport = async () => {
-    if (!result || !result.user_id) {
-      setError(
-        "User ID is not available. Please ensure the user is recognized before viewing the report."
-      );
-      return;
-    }
-
-    const userId = result.user_id;
-    const report = await getAttendanceReport(userId);
-
-    if (report.error) {
-      setError(report.error);
-    } else {
-      setAttendanceHistory(report.attendance_history);
-      setShowReport(true);
-    }
-  };
+  const [isWebcamOpen, setIsWebcamOpen] = useState(false);
 
   // Capture image from webcam
   const captureImage = async () => {
@@ -109,6 +91,8 @@ const FaceRecognition = () => {
 
   return (
     <div>
+      <Header />
+
       <h2>{isRegisterMode ? "Register Your Face" : "Mark Attendance"}</h2>
 
       {isRegisterMode ? (
@@ -169,23 +153,6 @@ const FaceRecognition = () => {
           }`}</p>
         </div>
       )}
-
-      <div>
-        <button onClick={handleAttendanceReport}>View Attendance Report</button>
-
-        {showReport && (
-          <div>
-            <h3>Attendance Report</h3>
-            <ul>
-              {attendanceHistory.map((record, index) => (
-                <li key={index}>
-                  Date: {record.date}, Time: {record.time}, Name: {record.name}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
     </div>
   );
 };

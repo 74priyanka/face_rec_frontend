@@ -1,11 +1,13 @@
-import React from "react";
-import FaceRecognition from "./components/FaceRecognition";
+import "./App.css";
+import { Outlet } from "react-router";
+import Header from "./components/Header";
 
 function App() {
   return (
-    <div>
-      <h1>Face Recognition Attendance System</h1>
-      <FaceRecognition />
+    <div className="App">
+      <div className="content">
+        <Outlet />
+      </div>
     </div>
   );
 }

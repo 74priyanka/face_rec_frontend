@@ -41,14 +41,23 @@ export const recognizeFace = async (imageFile) => {
   }
 };
 
-export const getAttendanceReport = async (userId) => {
+// faceRecognitionAPI.js
+
+export const markAttendance = async (image, rollNo) => {
   try {
-    const response = await axios.get(`${API_URL}/attendance_report`, {
-      params: { user_id: userId },
+    const formData = new FormData();
+    formData.append("image", image);
+    formData.append("rollNo", rollNo);
+
+    const response = await fetch("/api/mark_attendance", {
+      method: "POST",
+      body: formData,
     });
-    return response.data;
+
+    const data = await response.json();
+    return data; // Return response data (success or error message)
   } catch (error) {
-    console.error("Error fetching attendance report:", error);
-    return { error: "Failed to fetch attendance report" };
+    console.error("Error marking attendance:", error);
+    throw error; // Rethrow error for further handling
   }
 };
